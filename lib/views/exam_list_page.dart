@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:admin_side/views/exam_page.dart';
 import 'package:admin_side/views/widgets/buttons.dart';
 import 'package:admin_side/views/widgets/c_texts.dart';
@@ -40,7 +38,6 @@ class _ExamListPageState extends State<ExamListPage> {
   //   db.collection('exams').snapshots().listen((event) {
   //     data = event.docs;
 
-  //     log('data updated -> $data');
   //     if (mounted) {
   //       setState(() {});
   //     }
@@ -112,17 +109,10 @@ class _ExamListPageState extends State<ExamListPage> {
                                     ),
                                   ],
                                   onChanged: (value) async {
-                                    log(value.toString() + ' ${e.id}');
                                     await db
                                         .collection('exams')
                                         .doc(e.id)
                                         .update({'enabled': value});
-                                    log((await db
-                                            .collection('exams')
-                                            .doc(e.id)
-                                            .get())
-                                        .data()
-                                        .toString());
                                     return value;
                                   },
                                   colorBuilder: (b) =>
@@ -170,7 +160,6 @@ class _ExamListPageState extends State<ExamListPage> {
             'title': _examController.text,
             'enabled': false,
           });
-          log(temp.id);
 
           _examController.clear();
           Navigator.of(context).push(MaterialPageRoute(
