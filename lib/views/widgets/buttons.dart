@@ -9,14 +9,14 @@ class SimpleButton extends StatelessWidget {
   final Color? backgroundColor;
   final Color? textColor;
   final double? height;
-  const SimpleButton(
-    this.title, {
-    super.key,
-    this.action,
-    this.backgroundColor,
-    this.textColor,
-    this.height,
-  });
+  final double? borderRadius;
+  const SimpleButton(this.title,
+      {super.key,
+      this.action,
+      this.backgroundColor,
+      this.textColor,
+      this.height,
+      this.borderRadius});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class SimpleButton extends StatelessWidget {
               backgroundColor ?? const Color.fromARGB(255, 213, 44, 35)),
           shape: MaterialStateProperty.all(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(borderRadius ?? 15),
             ),
           ),
         ),
