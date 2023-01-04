@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+class Texts {
+  static String QUESTIONS = 'questions';
+  static String QUESTION = 'question';
+  static String EXAMS = 'exams';
+  static String ANSWERS = 'answers';
+  static String CORRECT_ANSWER = 'correct_answer';
+}
+
 TextStyle kLoginTitleStyle(Size size) => GoogleFonts.ubuntu(
       fontSize: size.height * 0.060,
       fontWeight: FontWeight.bold,
@@ -15,7 +23,7 @@ TextStyle kLoginTermsAndPrivacyStyle(Size size) =>
 
 TextStyle kHaveAnAccountStyle(Size size) =>
     GoogleFonts.ubuntu(fontSize: size.height * 0.022, color: Colors.black);
-    
+
 TextStyle kNormalStylel(Size size) =>
     GoogleFonts.ubuntu(fontSize: size.height * 0.022, color: Colors.black);
 
