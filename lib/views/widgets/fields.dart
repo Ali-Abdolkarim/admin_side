@@ -1,8 +1,6 @@
 import 'package:admin_side/constants.dart';
 import 'package:admin_side/views/widgets/buttons.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 class SimpleFormInput extends StatelessWidget {
   final ActionRSIS? validator;
@@ -10,6 +8,7 @@ class SimpleFormInput extends StatelessWidget {
   final Widget? prefixIcon;
   final Widget? suffixIcon;
   final String? hintText;
+  final ActionRVIS? onChanged;
   const SimpleFormInput({
     super.key,
     this.validator,
@@ -17,6 +16,7 @@ class SimpleFormInput extends StatelessWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.hintText,
+    this.onChanged,
   });
 
   @override
@@ -32,6 +32,7 @@ class SimpleFormInput extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(6)),
         ),
       ),
+      onChanged: onChanged,
       // The validator receives the text that the user has entered.
       validator: validator,
     );

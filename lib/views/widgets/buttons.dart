@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 typedef ActionP = Function();
 typedef ActionRSIS = String? Function(String?);
-
+typedef ActionRVIS = void Function(String?);
+//return void input string
 class SimpleButton extends StatelessWidget {
   final ActionP? action;
   final String title;
