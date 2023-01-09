@@ -22,10 +22,11 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
   var answers = [];
   final _controller = TextEditingController();
   final _answerController = TextEditingController();
+  final _extraPointontroller = TextEditingController(text: '0');
 
   final _formState = GlobalKey<FormState>();
   final _answerFormState = GlobalKey<FormState>();
-  var _correctAnswer;
+  var _correctAnswers = [];
 
   @override
   void initState() {
@@ -50,7 +51,10 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
       data = event.data();
       if (data != null) {
         if (data[Texts.CORRECT_ANSWER] != null) {
-          _correctAnswer = data[Texts.CORRECT_ANSWER];
+          _correctAnswers = data[Texts.CORRECT_ANSWER];
+        }
+        if (data[Texts.EXTRA_POINT] != null) {
+          _extraPointontroller.text = data[Texts.EXTRA_POINT];
         }
         if (data[Texts.QUESTION] != null) {
           _controller.text = data[Texts.QUESTION];
@@ -94,18 +98,18 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
   void addQuestion() async {
     // var temp = answers.map((e) => {'${answers.indexOf(e)}': e}).toList();
     if (_formState.currentState!.validate()) {
-      if (_correctAnswer == null) {
-        Get.defaultDialog(
-            radius: 6,
-            cancel: SimpleButton(
-              'Cancel',
-              action: () => Get.back(),
-              borderRadius: 6,
-            ),
-            content: const CText(
-                'Please select an answer by tapping on one answer.'));
-        return;
-      }
+      // if (_correctAnswers == null) {
+      //   Get.defaultDialog(
+      //       radius: 6,
+      //       cancel: SimpleButton(
+      //         'Cancel',
+      //         action: () => Get.back(),
+      //         borderRadius: 6,
+      //       ),
+      //       content: const CText(
+      //           'Please select an answer by tapping on one answer.'));
+      //   return;
+      // }
       if (mounted) {
         setState(() {
           loading = true;
@@ -121,7 +125,8 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
       DocumentReference questionRef = await db.collection(Texts.QUESTIONS).add({
         Texts.QUESTION: _controller.text.trim(),
         Texts.ANSWERS: answerRef.id,
-        Texts.CORRECT_ANSWER: _correctAnswer
+        Texts.CORRECT_ANSWER: _correctAnswers,
+        Texts.EXTRA_POINT: _extraPointontroller.text.trim(),
       });
 
       DocumentSnapshot examsSnapshot =
@@ -150,18 +155,18 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
   void updateQuestion() async {
     // var temp = answers.map((e) => {'${answers.indexOf(e)}': e}).toList();
     if (_formState.currentState!.validate()) {
-      if (_correctAnswer == null) {
-        Get.defaultDialog(
-            radius: 6,
-            cancel: SimpleButton(
-              'Cancel',
-              action: () => Get.back(),
-              borderRadius: 6,
-            ),
-            content: const CText(
-                'Please select an answer by tapping on one answer.'));
-        return;
-      }
+      // if (_correctAnswers == null) {
+      //   Get.defaultDialog(
+      //       radius: 6,
+      //       cancel: SimpleButton(
+      //         'Cancel',
+      //         action: () => Get.back(),
+      //         borderRadius: 6,
+      //       ),
+      //       content: const CText(
+      //           'Please select an answer by tapping on one answer.'));
+      //   return;
+      // }
       if (mounted) {
         setState(() {
           loading = true;
@@ -177,7 +182,8 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
       await db.collection(Texts.QUESTIONS).doc(widget.questionId).set({
         Texts.QUESTION: _controller.text.trim(),
         Texts.ANSWERS: answerRef.id,
-        Texts.CORRECT_ANSWER: _correctAnswer
+        Texts.CORRECT_ANSWER: _correctAnswers,
+        Texts.EXTRA_POINT: _extraPointontroller.text.trim(),
       });
       Navigator.pop(context);
     }
@@ -201,7 +207,7 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
                 //   );
                 // }
                 return loading
-                    ? Center(
+                    ? const Center(
                         child: CircularProgressIndicator(),
                       )
                     : Column(
@@ -218,12 +224,21 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       const BackButton(),
+                                      const Padding(
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            0, 20, 0, 8),
+                                        child: CText(
+                                          'Question',
+                                          align: TextAlign.start,
+                                        ),
+                                      ),
                                       Container(
                                         margin: const EdgeInsetsDirectional
-                                            .fromSTEB(0, 20, 0, 0),
+                                            .fromSTEB(0, 8, 0, 0),
                                         child: SimpleFormInput(
                                           hintText: 'Question',
-                                          prefixIcon: const Icon(Icons.person),
+                                          prefixIcon:
+                                              const Icon(Icons.question_mark),
                                           controller: _controller,
                                           validator: (value) {
                                             if (value == null ||
@@ -235,6 +250,27 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
                                             return null;
                                           },
                                         ),
+                                      ),
+                                      const Padding(
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            0, 24, 0, 8),
+                                        child: CText(
+                                          'Please input the Extra Point, in case all answers were correct',
+                                          align: TextAlign.start,
+                                        ),
+                                      ),
+                                      SimpleFormInput(
+                                        hintText: 'Extra Point',
+                                        prefixIcon: const Icon(Icons.add_task),
+                                        controller: _extraPointontroller,
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return 'Please enter some text';
+                                          } else if (!value.isNum) {
+                                            return 'Please enter Number';
+                                          }
+                                          return null;
+                                        },
                                       ),
                                       if (answers.isNotEmpty)
                                         Container(
@@ -255,8 +291,17 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
                                                   Expanded(
                                                     child: GestureDetector(
                                                       onTap: () {
-                                                        _correctAnswer =
-                                                            answers.indexOf(e);
+                                                        // checking if correct answers contain the selected answer
+                                                        _correctAnswers.contains(
+                                                                answers
+                                                                    .indexOf(e))
+                                                            ? _correctAnswers
+                                                                .remove(answers
+                                                                    .indexOf(e))
+                                                            : _correctAnswers
+                                                                .add(answers
+                                                                    .indexOf(
+                                                                        e));
                                                         setState(() {});
                                                       },
                                                       child: CText(
@@ -265,8 +310,8 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
                                                       ),
                                                     ),
                                                   ),
-                                                  if (answers.indexOf(e) ==
-                                                      _correctAnswer)
+                                                  if (_correctAnswers.contains(
+                                                      answers.indexOf(e)))
                                                     Container(
                                                       decoration:
                                                           const BoxDecoration(

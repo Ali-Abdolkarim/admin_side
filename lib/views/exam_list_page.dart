@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 class ExamListPage extends StatefulWidget {
   const ExamListPage({super.key});
@@ -97,10 +97,7 @@ class _ExamListPageState extends State<ExamListPage> {
                                   ),
                                 ),
                                 Expanded(
-                                  child: CText(currenitem[Texts.DATE] != null
-                                      ? DateFormat('yyyy.MM.DD')
-                                          .format(currentItemDate)
-                                      : 'Please set Date'),
+                                  child: CText(currenitem[Texts.CODEE] ?? ''),
                                 ),
                                 AnimatedToggleSwitch<bool>.dual(
                                   current: currenitem[Texts.ENABLED],
@@ -164,22 +161,27 @@ class _ExamListPageState extends State<ExamListPage> {
         'Add',
         height: 45,
         action: () async {
-          Get.back();
-          setState(() {
-            loading = true;
-          });
-          var temp = await db.collection(Texts.EXAMS).add({
-            Texts.TITLE: _examController.text,
-            Texts.ENABLED: false,
-          });
+          if (_formState.currentState!.validate()) {
+            Get.back();
+            setState(() {
+              loading = true;
+            });
+            var code = const Uuid().v1().substring(0, 8);
+            code = '${code.substring(0, 4)}-${code.substring(4)}';
+            var temp = await db.collection(Texts.EXAMS).add({
+              Texts.TITLE: _examController.text,
+              Texts.ENABLED: false,
+              Texts.CODEE: code
+            });
 
-          _examController.clear();
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => ExamPage(temp.id),
-          ));
-          setState(() {
-            loading = false;
-          });
+            _examController.clear();
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => ExamPage(temp.id),
+            ));
+            setState(() {
+              loading = false;
+            });
+          }
         },
       ),
       cancel: SimpleButton(

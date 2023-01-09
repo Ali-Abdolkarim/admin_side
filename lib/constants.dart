@@ -10,6 +10,8 @@ class Texts {
   static const String DATE = 'date';
   static const String TITLE = 'title';
   static const String ENABLED = 'enabled';
+  static const String CODEE = 'code';
+  static const String EXTRA_POINT = 'extra_point';
 }
 
 TextStyle kLoginTitleStyle(Size size) => GoogleFonts.ubuntu(
