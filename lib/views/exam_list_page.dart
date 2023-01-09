@@ -1,3 +1,4 @@
+import 'package:admin_side/constants.dart';
 import 'package:admin_side/views/exam_page.dart';
 import 'package:admin_side/views/widgets/buttons.dart';
 import 'package:admin_side/views/widgets/c_texts.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class ExamListPage extends StatefulWidget {
   const ExamListPage({super.key});
@@ -35,7 +37,7 @@ class _ExamListPageState extends State<ExamListPage> {
   //       loading = true;
   //     });
   //   }
-  //   db.collection('exams').snapshots().listen((event) {
+  //   db.collection( Texts.EXAMS ).snapshots().listen((event) {
   //     data = event.docs;
 
   //     if (mounted) {
@@ -56,7 +58,7 @@ class _ExamListPageState extends State<ExamListPage> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: StreamBuilder<QuerySnapshot>(
-          stream: db.collection('exams').snapshots(),
+          stream: db.collection(Texts.EXAMS).snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             // if (snapshot.connectionState != ConnectionState.done) {
@@ -72,6 +74,8 @@ class _ExamListPageState extends State<ExamListPage> {
                   if (snapshot.data != null)
                     ...snapshot.data!.docs.map((e) {
                       var currenitem = (e.data() as Map?);
+                      var currentItemDate = DateTime.fromMillisecondsSinceEpoch(
+                          currenitem?[Texts.DATE] ?? 0);
                       return Card(
                         margin:
                             const EdgeInsetsDirectional.fromSTEB(8, 4, 8, 4),
@@ -89,17 +93,25 @@ class _ExamListPageState extends State<ExamListPage> {
                               children: [
                                 Expanded(
                                   child: CText(
-                                    currenitem!['title'].toString(),
+                                    currenitem![Texts.TITLE].toString(),
                                   ),
                                 ),
+                                Expanded(
+                                  child: CText(currenitem[Texts.DATE] != null
+                                      ? DateFormat('yyyy.MM.DD')
+                                          .format(currentItemDate)
+                                      : 'Please set Date'),
+                                ),
                                 AnimatedToggleSwitch<bool>.dual(
-                                  current: currenitem['enabled'],
+                                  current: currenitem[Texts.ENABLED],
                                   first: true,
+
                                   second: false,
-                                  dif: 50.0,
+                                  iconRadius: 10,
+                                  dif: 0.0,
                                   borderColor: Colors.transparent,
-                                  borderWidth: 5.0,
-                                  height: 55,
+                                  borderWidth: 0.0,
+                                  height: 40,
                                   boxShadow: const [
                                     BoxShadow(
                                       color: Colors.black26,
@@ -110,9 +122,9 @@ class _ExamListPageState extends State<ExamListPage> {
                                   ],
                                   onChanged: (value) async {
                                     await db
-                                        .collection('exams')
+                                        .collection(Texts.EXAMS)
                                         .doc(e.id)
-                                        .update({'enabled': value});
+                                        .update({Texts.ENABLED: value});
                                     return value;
                                   },
                                   colorBuilder: (b) =>
@@ -120,9 +132,9 @@ class _ExamListPageState extends State<ExamListPage> {
                                   iconBuilder: (value) => value
                                       ? const Icon(Icons.done)
                                       : const Icon(Icons.cancel),
-                                  textBuilder: (value) => value
-                                      ? const Center(child: Text('Enabled'))
-                                      : const Center(child: Text('Disabled')),
+                                  // textBuilder: (value) => value
+                                  //     ? const Center(child: Text('Enabled'))
+                                  //     : const Center(child: Text('Disabled')),
                                 ),
                               ],
                             ),
@@ -156,9 +168,9 @@ class _ExamListPageState extends State<ExamListPage> {
           setState(() {
             loading = true;
           });
-          var temp = await db.collection('exams').add({
-            'title': _examController.text,
-            'enabled': false,
+          var temp = await db.collection(Texts.EXAMS).add({
+            Texts.TITLE: _examController.text,
+            Texts.ENABLED: false,
           });
 
           _examController.clear();

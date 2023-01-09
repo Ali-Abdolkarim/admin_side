@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Texts {
-  static String QUESTIONS = 'questions';
-  static String QUESTION = 'question';
-  static String EXAMS = 'exams';
-  static String ANSWERS = 'answers';
-  static String CORRECT_ANSWER = 'correct_answer';
+  static const String QUESTIONS = 'questions';
+  static const String QUESTION = 'question';
+  static const String EXAMS = 'exams';
+  static const String ANSWERS = 'answers';
+  static const String CORRECT_ANSWER = 'correct_answer';
+  static const String DATE = 'date';
+  static const String TITLE = 'title';
+  static const String ENABLED = 'enabled';
 }
 
 TextStyle kLoginTitleStyle(Size size) => GoogleFonts.ubuntu(

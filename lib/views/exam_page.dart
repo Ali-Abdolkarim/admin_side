@@ -1,6 +1,8 @@
 import 'dart:developer';
 
+import 'package:admin_side/constants.dart';
 import 'package:admin_side/views/add_question.dart';
+import 'package:admin_side/views/widgets/buttons.dart';
 import 'package:admin_side/views/widgets/c_texts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +21,7 @@ class _ExamPageState extends State<ExamPage> {
   List<QueryDocumentSnapshot> questions = [];
   FirebaseFirestore db = FirebaseFirestore.instance;
   var data;
+  var dateText;
 
   @override
   void initState() {
@@ -57,6 +60,24 @@ class _ExamPageState extends State<ExamPage> {
     }
   }
 
+  void showDateDialog() async {
+    var date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(DateTime.now().year + 1),
+      initialDatePickerMode: DatePickerMode.day,
+    );
+    if (date != null) {
+      dateText = '${date.year}-${date.month}-${date.day}';
+      await db
+          .collection(Texts.EXAMS)
+          .doc(widget.id)
+          .update({Texts.DATE: date.millisecondsSinceEpoch});
+    }
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -72,6 +93,29 @@ class _ExamPageState extends State<ExamPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const BackButton(),
+                    const Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(8, 0, 8, 0),
+                      child: CText('Date of Exam'),
+                    ),
+                    Container(
+                      width: size.width,
+                      margin: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                              child: CText(dateText ?? 'Please select a date')),
+                          Expanded(
+                              child: SimpleButton(
+                            'Set Date',
+                            action: showDateDialog,
+                          )),
+                        ],
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsetsDirectional.fromSTEB(8, 0, 8, 0),
+                      child: CText('Questions'),
+                    ),
                     ...questions
                         .map((e) => Card(
                               margin: const EdgeInsetsDirectional.fromSTEB(
