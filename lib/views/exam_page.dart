@@ -23,13 +23,15 @@ class _ExamPageState extends State<ExamPage> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   final _formState = GlobalKey<FormState>();
   var data;
+  DateTime? date;
   var dateText;
-  final _durationController = TextEditingController(text: '0');
+  var timeText;
+  final _durationController = TextEditingController();
   @override
   void initState() {
     super.initState();
     log(widget.id);
-    _loadData();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
   }
 
   void _loadData() async {
@@ -38,27 +40,55 @@ class _ExamPageState extends State<ExamPage> {
         loading = true;
       });
     }
-    QuerySnapshot? documents;
+    DocumentSnapshot? document;
     db.collection('exams').doc(widget.id).snapshots().listen((event) async {
       questions.removeRange(0, questions.length);
       questions = [];
       if (event.data() != null) {
-        if (event.data()![Texts.DURATION] != null) {
-          _durationController.text = event.data()![Texts.DURATION].toString();
+        log(event.data().toString());
+        if (_durationController.text.isEmpty) {
+          if (event.data()![Texts.DURATION] != null) {
+            _durationController.text = event.data()![Texts.DURATION].toString();
+          } else {
+            _durationController.text = '0';
+          }
+        }
+        if (event.data()![Texts.DATE] != null) {
+          date = DateTime.fromMillisecondsSinceEpoch(event.data()![Texts.DATE]);
+          dateText = '${date!.year}-${date!.month}-${date!.day}';
         }
         data = event.data();
-        if (data['questions'] != null) {
-          documents = await db.collection('questions').get();
-          for (var element in documents!.docs) {
-            if (data['questions'].contains(element.id) &&
-                !questions.contains(element)) {
-              questions.add(element);
-            }
-          }
-          if (mounted) {
-            setState(() {});
-          }
+        // if (data['questions'] != null) {
+        //   documents = await db.collection('questions').get();
+        //   for (var element in documents!.docs) {
+        //     if (data['questions'].contains(element.id) &&
+        //         !questions.contains(element)) {
+        //       questions.add(element);
+        //     }
+        //   }
+        //   if (mounted) {
+        //     setState(() {});
+        //   }
+        // }
+      }
+    });
+
+    db
+        .collection(Texts.QUESTIONS)
+        .where(Texts.EXAM_ID, isEqualTo: widget.id)
+        .snapshots()
+        .listen((event) async {
+      questions.clear();
+      for (var element in event.docs) {
+        log('-->>${element.data()}');
+        if (!questions.contains(element)) {
+          questions.add(element);
         }
+      }
+      if (mounted) {
+        setState(() {
+          loading = false;
+        });
       }
     });
     if (mounted) {
@@ -81,7 +111,7 @@ class _ExamPageState extends State<ExamPage> {
   }
 
   void showDateDialog() async {
-    var date = await showDatePicker(
+    date = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
@@ -89,11 +119,31 @@ class _ExamPageState extends State<ExamPage> {
       initialDatePickerMode: DatePickerMode.day,
     );
     if (date != null) {
-      dateText = '${date.year}-${date.month}-${date.day}';
+      dateText = '${date!.year}-${date!.month}-${date!.day}';
       await db
           .collection(Texts.EXAMS)
           .doc(widget.id)
-          .update({Texts.DATE: date.millisecondsSinceEpoch});
+          .update({Texts.DATE: date!.millisecondsSinceEpoch});
+    }
+    setState(() {});
+  }
+
+  void showTimeDialog() async {
+    var time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(DateTime.now()),
+    );
+    if (time != null && date != null) {
+      timeText = '${time.hour}:${time.minute}';
+      log(time.toString());
+      date = DateTime(date!.year, date!.month, date!.day);
+      date = date!.add(Duration(hours: time.hour));
+      date = date!.add(Duration(minutes: time.minute));
+      log('-->>>>>>>> ${date!.millisecondsSinceEpoch}');
+      await db
+          .collection(Texts.EXAMS)
+          .doc(widget.id)
+          .update({Texts.DATE: date!.millisecondsSinceEpoch});
     }
     setState(() {});
   }
@@ -132,6 +182,24 @@ class _ExamPageState extends State<ExamPage> {
                         ],
                       ),
                     ),
+                    if (dateText != null)
+                      Container(
+                        width: size.width,
+                        margin:
+                            const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 8),
+                        child: Row(
+                          children: [
+                            Expanded(
+                                child: CText(
+                                    timeText ?? 'Please select the time')),
+                            Expanded(
+                                child: SimpleButton(
+                              'Set Time',
+                              action: showTimeDialog,
+                            )),
+                          ],
+                        ),
+                      ),
                     const Padding(
                       padding: EdgeInsetsDirectional.fromSTEB(8, 8, 0, 8),
                       child: CText(
