@@ -7,10 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AddQuestionPage extends StatefulWidget {
-  final String id;
+  final String examId;
   final String? questionId;
   final bool update;
-  const AddQuestionPage(this.id, this.update, {super.key, this.questionId});
+  const AddQuestionPage(this.examId, this.update, {super.key, this.questionId});
 
   @override
   State<AddQuestionPage> createState() => _AddQuestionPageState();
@@ -126,11 +126,12 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
         Texts.QUESTION: _controller.text.trim(),
         Texts.ANSWERS: answerRef.id,
         Texts.CORRECT_ANSWER: _correctAnswers,
+        Texts.EXAM_ID: widget.examId,
         Texts.EXTRA_POINT: _extraPointontroller.text.trim(),
       });
 
       DocumentSnapshot examsSnapshot =
-          await db.collection(Texts.EXAMS).doc(widget.id).get();
+          await db.collection(Texts.EXAMS).doc(widget.examId).get();
       var data = examsSnapshot.data() as Map?;
       var questions = [];
 
@@ -141,7 +142,7 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
 
       await db
           .collection(Texts.EXAMS)
-          .doc(widget.id)
+          .doc(widget.examId)
           .update({Texts.QUESTIONS: questions});
       Navigator.pop(context);
       if (mounted) {
@@ -184,6 +185,7 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
         Texts.ANSWERS: answerRef.id,
         Texts.CORRECT_ANSWER: _correctAnswers,
         Texts.EXTRA_POINT: _extraPointontroller.text.trim(),
+        Texts.EXAM_ID: widget.examId,
       });
       Navigator.pop(context);
     }
