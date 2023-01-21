@@ -79,7 +79,7 @@ class _ExamTakenPageState extends State<ExamTakenPage> {
                             Get.to(() => ShowExamResultPage(
                                 accentColor:
                                     const Color.fromARGB(255, 213, 44, 35),
-                                subject: currenitem[Texts.TITLE],
+                                subject: currenitem[Texts.TITLE] ?? '',
                                 examId: currenitem[Texts.EXAM_ID],
                                 examTakenId: e.id));
                           },

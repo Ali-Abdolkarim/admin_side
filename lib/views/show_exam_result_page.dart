@@ -147,37 +147,6 @@ class _ShowExamResultPageState extends State<ShowExamResultPage> {
     }
   }
 
-  void showBackDialog() {
-    Get.defaultDialog(
-      title: 'Do you really want to exit the Exam?',
-      titleStyle: const TextStyle(fontSize: 16),
-      radius: 6,
-      content: Container(
-        margin: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
-        child: Column(
-          children: [
-            SimpleButton(
-              'Exit',
-              action: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-              },
-            ),
-            Container(
-              margin: const EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0),
-              child: SimpleButton(
-                'Cancel',
-                action: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -212,9 +181,7 @@ class _ShowExamResultPageState extends State<ShowExamResultPage> {
                               34, 28, 8, 8),
                           child: BackButton(
                             onPressed: () {
-                              questions.isEmpty
-                                  ? Navigator.pop(context)
-                                  : showBackDialog();
+                              Navigator.pop(context);
                             },
                           ),
                         ),
@@ -485,6 +452,7 @@ class _ShowExamResultPageState extends State<ShowExamResultPage> {
                 .collection(Texts.EXAMS_TAKEN)
                 .doc(widget.examTakenId)
                 .delete();
+            Get.back();
             Get.back();
           },
           height: 35,
