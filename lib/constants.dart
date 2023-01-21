@@ -13,8 +13,12 @@ class Texts {
   static const String CODEE = 'code';
   static const String EXTRA_POINT = 'extra_point';
   static const String DURATION = 'duration';
-  static const String TIME = 'time';
+  static const String EXAMS_TAKEN = 'exams_taken';
   static const String EXAM_ID = 'exam_id';
+  static const String QUESTION_ID = 'question_id';
+  static const String USERNAME = 'username';
+  static const String SUBMITTED = 'submitted';
+  static const String RESULT = 'result';
 }
 
 TextStyle kLoginTitleStyle(Size size) => GoogleFonts.ubuntu(

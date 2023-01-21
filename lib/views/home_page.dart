@@ -1,6 +1,6 @@
-import 'package:admin_side/views/add_question.dart';
 import 'package:admin_side/views/add_user_page.dart';
 import 'package:admin_side/views/exam_list_page.dart';
+import 'package:admin_side/views/exam_taken_page.dart';
 import 'package:admin_side/views/widgets/buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -35,13 +35,26 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Container(
-              margin: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 0),
+              margin: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 8),
               child: SimpleButton(
                 'Exams Page',
                 action: () {
                   Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) =>  const ExamListPage(),
+                    builder: (context) => const ExamListPage(),
                   ));
+                },
+              ),
+            ),
+            Container(
+              margin: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 0),
+              child: SimpleButton(
+                'Exams Taken Page',
+                action: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const ExamTakenPage(),
+                    ),
+                  );
                 },
               ),
             ),

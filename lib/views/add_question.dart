@@ -17,7 +17,7 @@ class AddQuestionPage extends StatefulWidget {
 }
 
 class _AddQuestionPageState extends State<AddQuestionPage> {
-  bool loading = true;
+  bool loading = false;
   FirebaseFirestore db = FirebaseFirestore.instance;
   var answers = [];
   final _controller = TextEditingController();
@@ -26,12 +26,14 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
 
   final _formState = GlobalKey<FormState>();
   final _answerFormState = GlobalKey<FormState>();
-  var _correctAnswers = [];
-
+  List<dynamic> _correctAnswers = [];
+  var data;
   @override
   void initState() {
     super.initState();
-    _loadData();
+    if (widget.update) {
+      _loadData();
+    }
   }
 
   void _loadData() async {
@@ -40,7 +42,7 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
         loading = true;
       });
     }
-    var data;
+
     DocumentSnapshot? response;
     var parseResponse;
     db
@@ -87,6 +89,7 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
     if (_answerFormState.currentState != null &&
         _answerFormState.currentState!.validate()) {
       answers.add(_answerController.text.trim());
+      _correctAnswers.add(false);
       _answerController.text = '';
       Get.back();
       if (mounted) {
@@ -129,6 +132,7 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
         Texts.EXAM_ID: widget.examId,
         Texts.EXTRA_POINT: _extraPointontroller.text.trim(),
       });
+      await answerRef.update({Texts.QUESTION_ID: questionRef.id});
 
       DocumentSnapshot examsSnapshot =
           await db.collection(Texts.EXAMS).doc(widget.examId).get();
@@ -177,16 +181,18 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
       for (var e in answers) {
         answerss.add(e);
       }
-      DocumentReference answerRef = await db.collection(Texts.ANSWERS).add({});
-      await answerRef.set({Texts.ANSWERS: answerss});
+      await db.collection(Texts.ANSWERS).doc(data[Texts.ANSWERS]).update({
+        Texts.ANSWERS: answerss,
+        Texts.QUESTION_ID: widget.questionId,
+      });
 
-      await db.collection(Texts.QUESTIONS).doc(widget.questionId).set({
+      await db.collection(Texts.QUESTIONS).doc(widget.questionId).update({
         Texts.QUESTION: _controller.text.trim(),
-        Texts.ANSWERS: answerRef.id,
         Texts.CORRECT_ANSWER: _correctAnswers,
         Texts.EXTRA_POINT: _extraPointontroller.text.trim(),
         Texts.EXAM_ID: widget.examId,
       });
+
       Navigator.pop(context);
     }
   }
@@ -294,16 +300,11 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
                                                     child: GestureDetector(
                                                       onTap: () {
                                                         // checking if correct answers contain the selected answer
-                                                        _correctAnswers.contains(
-                                                                answers
-                                                                    .indexOf(e))
-                                                            ? _correctAnswers
-                                                                .remove(answers
-                                                                    .indexOf(e))
-                                                            : _correctAnswers
-                                                                .add(answers
-                                                                    .indexOf(
-                                                                        e));
+                                                        _correctAnswers[answers
+                                                                .indexOf(e)] =
+                                                            !_correctAnswers[
+                                                                answers.indexOf(
+                                                                    e)];
                                                         setState(() {});
                                                       },
                                                       child: CText(
@@ -312,8 +313,10 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
                                                       ),
                                                     ),
                                                   ),
-                                                  if (_correctAnswers.contains(
-                                                      answers.indexOf(e)))
+                                                  if (_correctAnswers
+                                                          .isNotEmpty &&
+                                                      _correctAnswers[
+                                                          answers.indexOf(e)])
                                                     Container(
                                                       decoration:
                                                           const BoxDecoration(

@@ -45,7 +45,12 @@ dependencies:
   animated_toggle_switch: ^0.6.1
   intl: ^0.18.0
   uuid: ^3.0.7
-  
+  equatable: 
+  json_serializable: 
+  percent_indicator:
+  flutter_svg: 
+  build_runner:
+  circular_countdown_timer:
 dev_dependencies:
   flutter_test:
     sdk: flutter

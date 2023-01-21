@@ -42,20 +42,18 @@ class _ExamPageState extends State<ExamPage> {
     }
     DocumentSnapshot? document;
     db.collection('exams').doc(widget.id).snapshots().listen((event) async {
-      questions.removeRange(0, questions.length);
-      questions = [];
+      // questions.clear();
       if (event.data() != null) {
         log(event.data().toString());
         if (_durationController.text.isEmpty) {
           if (event.data()![Texts.DURATION] != null) {
             _durationController.text = event.data()![Texts.DURATION].toString();
-          } else {
-            _durationController.text = '0';
           }
         }
         if (event.data()![Texts.DATE] != null) {
           date = DateTime.fromMillisecondsSinceEpoch(event.data()![Texts.DATE]);
           dateText = '${date!.year}-${date!.month}-${date!.day}';
+          timeText = '${date!.hour}:${date!.minute}';
         }
         data = event.data();
         // if (data['questions'] != null) {
@@ -66,9 +64,9 @@ class _ExamPageState extends State<ExamPage> {
         //       questions.add(element);
         //     }
         //   }
-        //   if (mounted) {
-        //     setState(() {});
-        //   }
+        if (mounted) {
+          setState(() {});
+        }
         // }
       }
     });
@@ -98,16 +96,56 @@ class _ExamPageState extends State<ExamPage> {
     }
   }
 
-  void changeExamDuration(String? duration) async {
+  void changeExamDuration() async {
     if (_formState.currentState != null &&
         _formState.currentState!.validate()) {
-      if (duration != null && duration.isNotEmpty) {
-        await db
-            .collection(Texts.EXAMS)
-            .doc(widget.id)
-            .update({Texts.DURATION: int.parse(duration)});
+      if (_durationController.text.isNotEmpty) {
+        await db.collection(Texts.EXAMS).doc(widget.id).update({
+          Texts.DURATION: int.parse(
+            _durationController.text.trim(),
+          )
+        });
       }
     }
+  }
+
+  void showDurationDialog(BuildContext context) async {
+    Get.defaultDialog(
+      title: 'Exam Duration',
+      confirm: SimpleButton(
+        'Confirm',
+        // height: 45,
+        action: () async {
+          if (_formState.currentState!.validate()) {
+            Get.back();
+            changeExamDuration();
+          }
+        },
+      ),
+      cancel: SimpleButton(
+        'Cancel',
+        // height: 45,
+        action: () {
+          Get.back();
+          _durationController.text = '';
+        },
+      ),
+      content: Form(
+        key: _formState,
+        child: SimpleFormInput(
+          validator: (value) {
+            if (value!.trim().isEmpty) {
+              return 'can\'t be empty';
+            } else if (int.tryParse(value.trim()) == null) {
+              return 'the input should be in form of minutes \nand be whole number.';
+            }
+            return null;
+          },
+          hintText: 'Exam Duration',
+          controller: _durationController,
+        ),
+      ),
+    );
   }
 
   void showDateDialog() async {
@@ -200,32 +238,24 @@ class _ExamPageState extends State<ExamPage> {
                           ],
                         ),
                       ),
-                    const Padding(
-                      padding: EdgeInsetsDirectional.fromSTEB(8, 8, 0, 8),
-                      child: CText(
-                        'Exam Duration,\nPlease input in terms of minutes.',
-                        align: TextAlign.start,
-                      ),
-                    ),
-                    Form(
-                      key: _formState,
-                      child: Container(
-                        margin:
-                            const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 10),
-                        child: SimpleFormInput(
-                          hintText: 'Duration',
-                          controller: _durationController,
-                          prefixIcon: const Icon(Icons.timelapse),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter text';
-                            } else if (!value.isNum) {
-                              return 'input text should be number';
-                            }
-                            return null;
-                          },
-                          onChanged: changeExamDuration,
-                        ),
+                    Padding(
+                      padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: CText(
+                              _durationController.text.isEmpty
+                                  ? 'Exam Duration (minutes)'
+                                  : _durationController.text,
+                            ),
+                          ),
+                          Expanded(
+                            child: SimpleButton(
+                              'Set Duration',
+                              action: () => showDurationDialog(context),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const Padding(
@@ -295,8 +325,8 @@ class _ExamPageState extends State<ExamPage> {
   deleteItem(QueryDocumentSnapshot<Object?> e) async {
     var temp = data['questions'] as List;
     temp.remove(e.id);
-    await db.collection('exams').doc(widget.id).update({'questions': temp});
-    await db.collection('questions').doc(e.id).delete();
+    await db.collection(Texts.EXAMS).doc(widget.id).update({'questions': temp});
+    await db.collection(Texts.QUESTIONS).doc(e.id).delete();
     log('we are here');
   }
 }
