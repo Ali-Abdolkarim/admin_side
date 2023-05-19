@@ -1,4 +1,5 @@
 import 'package:admin_side/controller/simple_ui_controller.dart';
+import 'package:admin_side/views/home_page.dart';
 import 'package:admin_side/views/login_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

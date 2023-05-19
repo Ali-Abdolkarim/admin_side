@@ -246,7 +246,7 @@ class _ExamPageState extends State<ExamPage> {
                             child: CText(
                               _durationController.text.isEmpty
                                   ? 'Exam Duration (minutes)'
-                                  : _durationController.text,
+                                  : '${_durationController.text} mins',
                             ),
                           ),
                           Expanded(

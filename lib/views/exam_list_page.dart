@@ -66,12 +66,32 @@ class _ExamListPageState extends State<ExamListPage> {
             //     child: CircularProgressIndicator(),
             //   );
             // }
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const BackButton(),
-                  if (snapshot.data != null)
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const BackButton(),
+                    Container(
+                      alignment: Alignment.center,
+                      margin: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 8),
+                      child: const CText('Exams Taken List'),
+                    ),
+                    const Expanded(child: Center(child: CText('empty')))
+                  ]);
+            } else if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const BackButton(),
+                    Container(
+                      alignment: Alignment.center,
+                      margin: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 8),
+                      child: const CText('Exam List'),
+                    ),
+                    // if (snapshot.data != null && snapshot.data!.docs.isNotEmpty)
                     ...snapshot.data!.docs.map((e) {
                       var currenitem = (e.data() as Map?);
                       var currentItemDate = DateTime.fromMillisecondsSinceEpoch(
@@ -139,9 +159,13 @@ class _ExamListPageState extends State<ExamListPage> {
                         ),
                       );
                     }).toList(),
-                ],
-              ),
-            );
+                    // if (snapshot.data == null || snapshot.data!.docs.isEmpty)
+                    //   const Center(child: CText('empty'))
+                  ],
+                ),
+              );
+            }
+            return const Center();
           },
         ),
       ),
@@ -171,7 +195,10 @@ class _ExamListPageState extends State<ExamListPage> {
             var temp = await db.collection(Texts.EXAMS).add({
               Texts.TITLE: _examController.text,
               Texts.ENABLED: false,
-              Texts.CODEE: code
+              Texts.CODEE: code,
+              Texts.DURATION: 60,
+              Texts.DATE: DateTime.now().millisecondsSinceEpoch,
+              Texts.QUESTIONS: [],
             });
 
             _examController.clear();

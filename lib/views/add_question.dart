@@ -342,6 +342,9 @@ class _AddQuestionPageState extends State<AddQuestionPage> {
                                                     onTap: () {
                                                       if (mounted) {
                                                         setState(() {
+                                                          _correctAnswers
+                                                              .removeAt(answers
+                                                                  .indexOf(e));
                                                           answers.remove(e);
                                                         });
                                                       }

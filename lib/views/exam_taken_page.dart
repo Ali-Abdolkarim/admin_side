@@ -54,63 +54,82 @@ class _ExamTakenPageState extends State<ExamTakenPage> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: StreamBuilder<QuerySnapshot>(
-          stream: db.collection(Texts.EXAMS_TAKEN).snapshots(),
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            // if (snapshot.connectionState != ConnectionState.done) {
-            //   return const Center(
-            //     child: CircularProgressIndicator(),
-            //   );
-            // }
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const BackButton(),
-                  if (snapshot.data != null)
-                    ...snapshot.data!.docs.map((e) {
-                      var currenitem = (e.data() as Map?);
-
-                      return Card(
+            stream: db.collection(Texts.EXAMS_TAKEN).snapshots(),
+            builder:
+                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const BackButton(),
+                      Container(
+                        alignment: Alignment.center,
                         margin:
-                            const EdgeInsetsDirectional.fromSTEB(8, 4, 8, 4),
-                        child: InkWell(
-                          onTap: () {
-                            Get.to(() => ShowExamResultPage(
-                                accentColor:
-                                    const Color.fromARGB(255, 213, 44, 35),
-                                subject: currenitem[Texts.TITLE] ?? '',
-                                examId: currenitem[Texts.EXAM_ID],
-                                examTakenId: e.id));
-                          },
-                          child: Container(
-                            padding: const EdgeInsetsDirectional.fromSTEB(
-                                8, 8, 8, 8),
-                            alignment: Alignment.center,
-                            width: size.width,
-                            height: size.height * .1,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child:
-                                      CText(currenitem![Texts.USERNAME] ?? ''),
-                                ),
-                                Expanded(
-                                  child: CText(
-                                    currenitem[Texts.TITLE].toString(),
+                            const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 8),
+                        child: const CText('Exams Taken List'),
+                      ),
+                      const Expanded(child: Center(child: CText('empty')))
+                    ]);
+              } else if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                return SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const BackButton(),
+                      Container(
+                        alignment: Alignment.center,
+                        margin:
+                            const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 8),
+                        child: const CText('Exams Taken List'),
+                      ),
+                      ...snapshot.data!.docs.map((e) {
+                        var currenitem = (e.data() as Map?);
+
+                        return Card(
+                          margin:
+                              const EdgeInsetsDirectional.fromSTEB(8, 4, 8, 4),
+                          child: InkWell(
+                            onTap: () {
+                              Get.to(() => ShowExamResultPage(
+                                  accentColor:
+                                      const Color.fromARGB(255, 213, 44, 35),
+                                  subject: currenitem[Texts.TITLE] ?? '',
+                                  examId: currenitem[Texts.EXAM_ID],
+                                  examTakenId: e.id));
+                            },
+                            child: Container(
+                              padding: const EdgeInsetsDirectional.fromSTEB(
+                                  8, 8, 8, 8),
+                              alignment: Alignment.center,
+                              width: size.width,
+                              height: size.height * .1,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: CText(
+                                        currenitem![Texts.USERNAME] ?? ''),
                                   ),
-                                ),
-                              ],
+                                  Expanded(
+                                    child: CText(
+                                      currenitem[Texts.TITLE].toString(),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    }).toList(),
-                ],
-              ),
-            );
-          },
-        ),
+                        );
+                      }).toList(),
+                      // if (snapshot.data == null || snapshot.data!.docs.isEmpty)
+                      //   const Center(child: CText('empty'))
+                    ],
+                  ),
+                );
+              }
+              return const Center();
+            }),
       ),
     );
   }

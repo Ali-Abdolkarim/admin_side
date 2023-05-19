@@ -61,6 +61,7 @@ class _AddUserPageState extends State<AddUserPage> {
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -81,6 +82,13 @@ class _AddUserPageState extends State<AddUserPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const BackButton(),
+                            Center(
+                              child: Image.asset(
+                                'assets/add_user.png',
+                                height: size.height * 0.2,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
                             Container(
                               margin: const EdgeInsetsDirectional.fromSTEB(
                                   8, 20, 8, 8),
@@ -108,7 +116,7 @@ class _AddUserPageState extends State<AddUserPage> {
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'Please enter some text';
-                                  } else if (value.length < 7) {
+                                  } else if (value.length < 6) {
                                     return 'at least enter 6 characters';
                                   }
                                   return null;
